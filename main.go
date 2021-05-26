@@ -11,6 +11,8 @@ import (
 	"local/camera-export/models"
 	"os"
 	"strconv"
+
+	"github.com/nfnt/resize"
 )
 
 func main() {
@@ -77,9 +79,9 @@ func main() {
 }
 
 func CreateDirectory() {
-	_, err := os.Stat("./photos")
+	_, err := os.Stat("./exported-photos")
 	if os.IsNotExist(err) {
-		errDir := os.MkdirAll("./photos", 0755)
+		errDir := os.MkdirAll("./exported-photos", 0755)
 		if errDir != nil {
 			fmt.Println(err)
 		}
@@ -97,10 +99,10 @@ func CreatePhotoFile(b64String string, name string) {
 		panic("Bad jpeg")
 	}
 
-	f, err := os.OpenFile("photos/"+name+".jpg", os.O_WRONLY|os.O_CREATE, 0777)
+	newImage := resize.Resize(960, 960, im, resize.Lanczos3)
+	f, err := os.OpenFile("exported-photos/"+name+".jpg", os.O_WRONLY|os.O_CREATE, 0777)
 	if err != nil {
 		panic("Cannot open file")
 	}
-
-	jpeg.Encode(f, im, nil)
+	jpeg.Encode(f, newImage, nil)
 }
