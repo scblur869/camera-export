@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/csv"
 	"flag"
 	"fmt"
+	"image/jpeg"
 	"local/camera-export/_http"
 	"local/camera-export/models"
 	"os"
@@ -41,6 +44,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	CreateDirectory()
 	writer := csv.NewWriter(csvFile)
 	var header []string
 	header = append(header, "Name")
@@ -66,6 +70,37 @@ func main() {
 		row = append(row, list.Data.PersonInfo.Address)
 		row = append(row, list.Data.PersonInfo.PersonExtension.PersonData4)
 		writer.Write(row)
+		CreatePhotoFile(list.Data.PersonInfo.PersonPhoto, list.Data.PersonInfo.PersonName)
 	}
 	writer.Flush()
+
+}
+
+func CreateDirectory() {
+	_, err := os.Stat("./photos")
+	if os.IsNotExist(err) {
+		errDir := os.MkdirAll("./photos", 0755)
+		if errDir != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
+func CreatePhotoFile(b64String string, name string) {
+	unbased, err := base64.StdEncoding.DecodeString(b64String)
+	if err != nil {
+		panic("Cannot decode b64")
+	}
+	r := bytes.NewReader(unbased)
+	im, err := jpeg.Decode(r)
+	if err != nil {
+		panic("Bad jpeg")
+	}
+
+	f, err := os.OpenFile("photos/"+name+".jpg", os.O_WRONLY|os.O_CREATE, 0777)
+	if err != nil {
+		panic("Cannot open file")
+	}
+
+	jpeg.Encode(f, im, nil)
 }
