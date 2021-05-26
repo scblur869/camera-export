@@ -13,18 +13,6 @@ import (
 	"time"
 )
 
-func errorCheck(body []byte) models.DeviceCheckError {
-	var errResponse models.DeviceCheckError
-	error := json.Unmarshal([]byte(body), &errResponse)
-	if error != nil {
-		fmt.Println("JSON parse error check : ", error)
-
-	}
-
-	return errResponse
-
-}
-
 func OpenDeviceCheck(ip string, port string) (models.DeviceInfoACK, error) {
 
 	var infoReq models.Req
@@ -48,33 +36,21 @@ func OpenDeviceCheck(ip string, port string) (models.DeviceInfoACK, error) {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
+	fmt.Println("get device check:", resp.Status)
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("body resp", string(body))
+
 	error := json.Unmarshal([]byte(body), &device)
 
 	if error != nil {
 		fmt.Println("JSON parse error: ", error)
 
 	}
-	if device.Name == "" {
-		errMessage := errorCheck(body)
 
-		device.Name = errMessage.Result
-		device.DeviceInfo.DeviceId = "****"
-		device.DeviceInfo.DeviceMac = "****"
-		device.DeviceInfo.DeviceUUID = "****"
-		device.DeviceInfo.LocalIp = ip
-		device.DeviceInfo.CoreVersion = "****"
-		device.DeviceInfo.VersionDate = "****"
-		device.DeviceInfo.WebVersion = "****"
-
-	}
 	return device, error
 
 }
 
-func GetPersonListFromDevice(payload models.DeviceAuth) models.PersonListResponse {
+func GetPersonListFromDevice(payload models.DeviceAuth) (models.PersonListResponse, error) {
 	url := "http://" + payload.DeviceIP + ":8011/Request"
 	var personList models.PersonListResponse
 
@@ -116,14 +92,14 @@ func GetPersonListFromDevice(payload models.DeviceAuth) models.PersonListRespons
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Printf("%+v", resp.Header)
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
-
+	fmt.Println("get person list:", resp.Status)
+	body, error := ioutil.ReadAll(resp.Body)
+	if error != nil {
+		fmt.Println(error)
+	}
 	json.Unmarshal([]byte(body), &personList)
 
-	return personList
+	return personList, error
 }
 
 func PersonDetailsRequest(payload models.DeviceAuth, personId string, personType int) (models.Response, error) {
@@ -167,7 +143,7 @@ func PersonDetailsRequest(payload models.DeviceAuth, personId string, personType
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
+	fmt.Println("get person details:", resp.Status)
 	body, _ := ioutil.ReadAll(resp.Body)
 	// fmt.Println("body resp", string(body))
 	error := json.Unmarshal([]byte(body), &response)

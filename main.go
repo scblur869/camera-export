@@ -31,16 +31,20 @@ func main() {
 	authInfo.UUID = device.DeviceInfo.DeviceUUID
 	authInfo.User = *userName
 	authInfo.Password = *password
+	personTypeArr := [3]int{1, 2, 3}
+	listResponse, err := _http.GetPersonListFromDevice(authInfo)
+	if err != nil {
+		fmt.Println(err)
+	}
+	for _, ptype := range personTypeArr {
+		for _, s := range listResponse.Data.PersonList {
 
-	listResponse := _http.GetPersonListFromDevice(authInfo)
-
-	for _, s := range listResponse.Data.PersonList {
-
-		res, err := _http.PersonDetailsRequest(authInfo, s.PersonId, listResponse.Data.PersonType)
-		if err != nil {
-			fmt.Println(err)
+			res, err := _http.PersonDetailsRequest(authInfo, s.PersonId, ptype)
+			if err != nil {
+				fmt.Println(err)
+			}
+			userList = append(userList, res)
 		}
-		userList = append(userList, res)
 	}
 	csvFile, err := os.Create("device-" + authInfo.UUID + ".csv")
 	if err != nil {
@@ -72,7 +76,9 @@ func main() {
 		row = append(row, list.Data.PersonInfo.Address)
 		row = append(row, list.Data.PersonInfo.PersonExtension.PersonData4)
 		writer.Write(row)
-		CreatePhotoFile(list.Data.PersonInfo.PersonPhoto, list.Data.PersonInfo.PersonName)
+		if list.Data.PersonInfo.PersonPhoto != "" {
+			CreatePhotoFile(list.Data.PersonInfo.PersonPhoto, list.Data.PersonInfo.PersonName)
+		}
 	}
 	writer.Flush()
 
