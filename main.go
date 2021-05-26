@@ -32,11 +32,12 @@ func main() {
 	authInfo.User = *userName
 	authInfo.Password = *password
 	personTypeArr := [3]int{1, 2, 3}
-	listResponse, err := _http.GetPersonListFromDevice(authInfo)
-	if err != nil {
-		fmt.Println(err)
-	}
+
 	for _, ptype := range personTypeArr {
+		listResponse, err := _http.GetPersonListFromDevice(authInfo, ptype)
+		if err != nil {
+			fmt.Println(err)
+		}
 		for _, s := range listResponse.Data.PersonList {
 
 			res, err := _http.PersonDetailsRequest(authInfo, s.PersonId, ptype)

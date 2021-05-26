@@ -50,7 +50,7 @@ func OpenDeviceCheck(ip string, port string) (models.DeviceInfoACK, error) {
 
 }
 
-func GetPersonListFromDevice(payload models.DeviceAuth) (models.PersonListResponse, error) {
+func GetPersonListFromDevice(payload models.DeviceAuth, personType int) (models.PersonListResponse, error) {
 	url := "http://" + payload.DeviceIP + ":8011/Request"
 	var personList models.PersonListResponse
 
@@ -62,7 +62,7 @@ func GetPersonListFromDevice(payload models.DeviceAuth) (models.PersonListRespon
 	hasher := md5.New()
 	hasher.Write([]byte(strData))
 	signedData := hex.EncodeToString(hasher.Sum(nil))
-
+	pIdStr := strconv.Itoa(personType)
 	var jsonBody = []byte(`
 	{
 	"Name": "personListRequest",
@@ -72,8 +72,8 @@ func GetPersonListFromDevice(payload models.DeviceAuth) (models.PersonListRespon
 	"Sign": "` + signedData + `",
 	  	"Data": {
 		      "Action": "getPersonList", 
-					"PersonType": 2,
-					"PageNo": 1,
+			      "PersonType": ` + pIdStr + `,
+			      "PageNo": 1,
 				  "PageSize": 1000
 		        }
 	}
