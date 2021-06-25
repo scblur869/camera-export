@@ -12,15 +12,15 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/go-git/go-git/v5/plumbing/color"
 	"github.com/nfnt/resize"
 )
 
 func printUsage() {
-
+	fmt.Println(color.Bold)
 	fmt.Println(("usage:"))
-	fmt.Println()
-
 	fmt.Println(("camera-export -deviceip=192.168.1.1 -user=admin -pass=admin -port=8011"))
+	fmt.Println()
 }
 
 func main() {
