@@ -15,6 +15,14 @@ import (
 	"github.com/nfnt/resize"
 )
 
+func printUsage() {
+
+	fmt.Println(("usage:"))
+	fmt.Println()
+
+	fmt.Println(("camera-export -deviceip=192.168.1.1 -user=admin -pass=admin -port=8011"))
+}
+
 func main() {
 	var authInfo models.DeviceAuth
 	var userList []models.Response
@@ -23,6 +31,10 @@ func main() {
 	password := flag.String("pass", "admin", "admin user account password")
 	port := flag.String("port", "8011", "device default port")
 	flag.Parse()
+	if len(os.Args) == 1 {
+		printUsage()
+		os.Exit(1)
+	}
 	device, err := _http.OpenDeviceCheck(*deviceIp, *port)
 	if err != nil {
 		fmt.Println(err)
