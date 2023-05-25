@@ -1,6 +1,6 @@
 
 # what does this do?
-- this utility exports the users from the temper-sure camera / scanner
+- this utility exports the users from the ip camera / scanner
 - creates a folder called 'exported-photos'
 - creates a CSV with the UUID of the device in the name of the CSV
 - goal of this is to allow the user to import / restore this user data back to the device(s)
